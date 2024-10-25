@@ -28,6 +28,11 @@ jobs:
         with:
           terraform_version: 1.6.0
 
+      - name: Clear Terraform Cache
+        run: |
+          rm -rf ./infra-terraform/.terraform
+        working-directory: ./infra-terraform
+
       - name: Terraform Init for Infrastructure
         run: terraform init
         working-directory: ./infra-terraform
@@ -63,6 +68,11 @@ jobs:
         uses: hashicorp/setup-terraform@v1.4.0
         with:
           terraform_version: 1.6.0
+
+      - name: Clear Terraform Cache
+        run: |
+          rm -rf ./infra-terraform/.terraform
+        working-directory: ./infra-terraform
 
       - name: Terraform Init for Infrastructure
         run: terraform init
