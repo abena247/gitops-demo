@@ -34,7 +34,8 @@ variable "instance_type" {
 
 variable "key_name" {
   description = "Key pair name for SSH access"
-  default     = "my-keypair-21May2024"
+  default     = "gitops_demo"
+"
 }
 
 variable "security_group_name" {
