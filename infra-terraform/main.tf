@@ -138,98 +138,98 @@ resource "aws_instance" "jenkins_ci" {
   }
 }
 
-#Creation of EKS Cluster Starts from here 
+# #Creation of EKS Cluster Starts from here 
 
-# IAM Policy Document for EKS Cluster Role
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
+# # IAM Policy Document for EKS Cluster Role
+# data "aws_iam_policy_document" "assume_role" {
+#   statement {
+#     effect = "Allow"
 
-    principals {
-      type        = "Service"
-      identifiers = ["eks.amazonaws.com"]
-    }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["eks.amazonaws.com"]
+#     }
 
-    actions = ["sts:AssumeRole"]
-  }
-}
+#     actions = ["sts:AssumeRole"]
+#   }
+# }
 
-# IAM Role for EKS Cluster
-resource "aws_iam_role" "eks_cluster" {
-  name               = "eks-cluster-cluster"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
+# # IAM Role for EKS Cluster
+# resource "aws_iam_role" "eks_cluster" {
+#   name               = "eks-cluster-cluster"
+#   assume_role_policy = data.aws_iam_policy_document.assume_role.json
+# }
 
-# Attach AmazonEKSClusterPolicy to EKS Role
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_cluster.name
-}
+# # Attach AmazonEKSClusterPolicy to EKS Role
+# resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+#   role       = aws_iam_role.eks_cluster.name
+# }
 
-# EKS Cluster Provisioning
-resource "aws_eks_cluster" "example" {
-  name     = "EKS_Cluster"
-  role_arn = aws_iam_role.eks_cluster.arn
+# # EKS Cluster Provisioning
+# resource "aws_eks_cluster" "example" {
+#   name     = "EKS_Cluster"
+#   role_arn = aws_iam_role.eks_cluster.arn
 
-  vpc_config {
-    subnet_ids = data.aws_subnets.default.ids
-  }
+#   vpc_config {
+#     subnet_ids = data.aws_subnets.default.ids
+#   }
 
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_cluster_policy,
-  ]
-}
+#   depends_on = [
+#     aws_iam_role_policy_attachment.eks_cluster_policy,
+#   ]
+# }
 
-# IAM Role for EKS Node Group
-resource "aws_iam_role" "eks_node_group" {
-  name = "eks-node-group-cluster"
+# # IAM Role for EKS Node Group
+# resource "aws_iam_role" "eks_node_group" {
+#   name = "eks-node-group-cluster"
 
-  assume_role_policy = jsonencode({
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
-    Version = "2012-10-17"
-  })
-}
+#   assume_role_policy = jsonencode({
+#     Statement = [{
+#       Action = "sts:AssumeRole"
+#       Effect = "Allow"
+#       Principal = {
+#         Service = "ec2.amazonaws.com"
+#       }
+#     }]
+#     Version = "2012-10-17"
+#   })
+# }
 
-# Attach necessary policies to EKS Node Group Role
-resource "aws_iam_role_policy_attachment" "eks_worker_node_policy_ng" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_node_group.name
-}
+# # Attach necessary policies to EKS Node Group Role
+# resource "aws_iam_role_policy_attachment" "eks_worker_node_policy_ng" {
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+#   role       = aws_iam_role.eks_node_group.name
+# }
 
-resource "aws_iam_role_policy_attachment" "eks_cni_policy_ng" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_node_group.name
-}
+# resource "aws_iam_role_policy_attachment" "eks_cni_policy_ng" {
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+#   role       = aws_iam_role.eks_node_group.name
+# }
 
-resource "aws_iam_role_policy_attachment" "ecs_registry_read_only" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_node_group.name
-}
+# resource "aws_iam_role_policy_attachment" "ecs_registry_read_only" {
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+#   role       = aws_iam_role.eks_node_group.name
+# }
 
-# Create EKS Node Group
-resource "aws_eks_node_group" "example" {
-  cluster_name    = aws_eks_cluster.example.name
-  node_group_name = "Node-Cluster"
-  node_role_arn   = aws_iam_role.eks_node_group.arn
-  subnet_ids      = data.aws_subnets.default.ids
+# # Create EKS Node Group
+# resource "aws_eks_node_group" "example" {
+#   cluster_name    = aws_eks_cluster.example.name
+#   node_group_name = "Node-Cluster"
+#   node_role_arn   = aws_iam_role.eks_node_group.arn
+#   subnet_ids      = data.aws_subnets.default.ids
 
-  scaling_config {
-    desired_size = 2
-    max_size     = 2
-    min_size     = 1
-  }
+#   scaling_config {
+#     desired_size = 2
+#     max_size     = 2
+#     min_size     = 1
+#   }
 
-  instance_types = ["t2.xlarge"]
+#   instance_types = ["t2.xlarge"]
 
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_worker_node_policy_ng,
-    aws_iam_role_policy_attachment.eks_cni_policy_ng,
-    aws_iam_role_policy_attachment.ecs_registry_read_only,
-  ]
-}
+#   depends_on = [
+#     aws_iam_role_policy_attachment.eks_worker_node_policy_ng,
+#     aws_iam_role_policy_attachment.eks_cni_policy_ng,
+#     aws_iam_role_policy_attachment.ecs_registry_read_only,
+#   ]
+# }

@@ -25,11 +25,11 @@ variable "instance_profile_name" {
 
 variable "instance_name" {
   description = "Name of the Jenkins CI instance"
-  default     = "Jenkins-CI"
+  default     = "Jenkins-CII"
 }
 variable "instance_type" {
   description = "Instance type for the Jenkins CI instance"
-  default     = "t2.large"
+  default     = "t2.medium"
 }
 
 variable "key_name" {
